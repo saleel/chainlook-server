@@ -2,9 +2,9 @@
   "name": "chainlook-server",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
   "scripts": {
     "start": "node .",
+    "lint": "eslint --fix .",
     "build": "tsc",
     "dev": "ts-node-dev index.ts"
   },
@@ -14,12 +14,85 @@
   "dependencies": {
     "dotenv": "^16.0.3",
     "fastify": "^4.10.2",
-    "fastify-cors": "^6.1.0"
+    "fastify-cors": "^6.1.0",
+    "knex": "^2.4.1",
+    "pg": "^8.8.0",
+    "uuid": "^9.0.0",
+    "web3.storage": "^4.4.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20",
+    "@types/uuid": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.49.0",
+    "@typescript-eslint/parser": "^5.49.0",
+    "eslint": "^8.31.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-import-resolver-node": "^0.3.7",
+    "eslint-plugin-import": "^2.26.0",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.9.3"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": false,
+      "es2021": true,
+      "node": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+      "airbnb",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "sourceType": "module"
+    },
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "settings": {
+      "import/resolver": {
+        "node": {
+          "extensions": [
+            ".js",
+            ".ts"
+          ]
+        }
+      }
+    },
+    "rules": {
+      "import/prefer-default-export": [
+        0
+      ],
+      "import/no-unresolved": [
+        0
+      ],
+      "import/extensions": [
+        0
+      ],
+      "max-len": [
+        1,
+        {
+          "code": 200
+        }
+      ],
+      "no-restricted-syntax": [
+        0
+      ],
+      "class-methods-use-this": [
+        0
+      ],
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          "devDependencies": true
+        }
+      ]
+    },
+    "ignorePatterns": [
+      "**/build/",
+      "**/dist"
+    ]
   }
 }

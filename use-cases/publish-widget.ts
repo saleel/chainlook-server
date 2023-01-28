@@ -1,19 +1,19 @@
 import { v4 as uuid } from 'uuid';
-import { IDashboardRepository, IPFSService } from '../common/interfaces';
-import { DashboardDefinition } from '../common/types';
-import Dashboard from '../domain/dashboard';
+import { IPFSService, IWidgetRepository } from '../common/interfaces';
+import { WidgetDefinition } from '../common/types';
+import Widget from '../domain/widget';
 
 type UseCaseContext = {
   ipfsService: IPFSService
-  dashboardRepository: IDashboardRepository
+  widgetRepository: IWidgetRepository
 }
 
-type PublishDashboardInput = {
+type PublishWidgetInput = {
   slug: string,
-  definition: DashboardDefinition;
+  definition: WidgetDefinition;
 }
 
-export default async function publishDashboard(publishDashboardInput: PublishDashboardInput, context: UseCaseContext) {
+export default async function publishWidgetUseCase(publishDashboardInput: PublishWidgetInput, context: UseCaseContext) {
   const { definition, slug } = publishDashboardInput;
 
   if (!slug.startsWith(`${definition.author.name}/`)) {
@@ -23,13 +23,13 @@ export default async function publishDashboard(publishDashboardInput: PublishDas
   const contentName = `ChainLook Dashboard: ${definition.title}`;
   const cid = await context.ipfsService.publishJSON(contentName, definition);
 
-  if (await context.dashboardRepository.dashboardExists(cid)) {
-    throw new Error('Dashboard with same definition already exists');
+  if (await context.widgetRepository.widgetExists(cid)) {
+    throw new Error('Widget with same definition already exists');
   }
 
   const now = new Date();
 
-  const dashboard = new Dashboard({
+  const widget = new Widget({
     id: uuid(),
     slug,
     cid,
@@ -38,12 +38,11 @@ export default async function publishDashboard(publishDashboardInput: PublishDas
     authorName: definition.author.name,
     tags: definition.tags,
     definition,
-    starred: 0,
     createdAt: now,
     updatedAt: now,
   });
 
-  await context.dashboardRepository.createDashboard(dashboard);
+  await context.widgetRepository.createWidget(widget);
 
-  return dashboard;
+  return widget;
 }
