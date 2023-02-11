@@ -4,20 +4,25 @@ import { DashboardDefinition } from '../common/types';
 import Dashboard from '../domain/dashboard';
 
 type UseCaseContext = {
-  ipfsService: IPFSService
-  dashboardRepository: IDashboardRepository
-}
+  ipfsService: IPFSService;
+  dashboardRepository: IDashboardRepository;
+};
 
 type PublishDashboardInput = {
-  slug: string,
+  slug: string;
   definition: DashboardDefinition;
-}
+};
 
-export default async function publishDashboard(publishDashboardInput: PublishDashboardInput, context: UseCaseContext) {
+export default async function publishDashboard(
+  publishDashboardInput: PublishDashboardInput,
+  context: UseCaseContext,
+) {
   const { definition, slug } = publishDashboardInput;
 
   if (!slug.startsWith(`${definition.author.name}/`)) {
-    throw new Error("Slug should prefixed with author name '[authorName]/[slug]'");
+    throw new Error(
+      "Slug should prefixed with author name '[authorName]/[slug]'",
+    );
   }
 
   const contentName = `ChainLook Dashboard: ${definition.title}`;

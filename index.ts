@@ -4,14 +4,43 @@ import { config } from 'dotenv';
 config();
 import fastify, { RouteOptions } from 'fastify';
 import fs from 'fs';
+import cors from '@fastify/cors';
+import JWT, { JwtPayload } from 'jsonwebtoken';
 import routes from './infra/routes';
+import User from './domain/user';
+import logger from './infra/logger';
 
-const server = fastify({ logger: true });
+const server = fastify({ logger });
+
+server.register(cors, {});
 
 routes.forEach((r) => server.route(r as RouteOptions));
 
-server.addSchema(JSON.parse(fs.readFileSync('./schemas/widget.json').toString()));
-server.addSchema(JSON.parse(fs.readFileSync('./schemas/dashboard.json').toString()));
+server.addSchema(
+  JSON.parse(fs.readFileSync('./schemas/widget.json').toString()),
+);
+server.addSchema(
+  JSON.parse(fs.readFileSync('./schemas/dashboard.json').toString()),
+);
+
+server.decorateRequest('user', null);
+server.addHook('preHandler', async (request, reply) => {
+  if (request.routeConfig.requireAuth) {
+    try {
+      const tokenHeader = request.headers.authorization as string;
+      const authToken = tokenHeader.slice('Bearer '.length);
+      const parsed = JWT.decode(authToken) as JwtPayload;
+      const { address, username } = parsed;
+
+      const user = new User({ id: address, address, username });
+      request.user = user;
+    } catch (err) {
+      request.log.error(err, 'Error parsing auth token');
+      reply.status(401);
+      reply.send();
+    }
+  }
+});
 
 // Run the server!
 const start = async () => {

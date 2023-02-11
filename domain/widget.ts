@@ -1,32 +1,35 @@
 type CreateWidgetInput = {
   id: string;
-  slug: string;
-  cid: string;
   title: string;
+  definition: object;
   authorId: string;
   authorName: string;
   tags: string[];
-  definition: object;
+  version: number;
+  forkId?: string;
+  forkVersion?: number;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
 export default class Widget {
   id: string;
 
-  slug: string;
-
-  cid: string;
-
   title: string;
+
+  definition: object;
+
+  tags: string[];
 
   authorId: string;
 
   authorName: string;
 
-  tags: string[];
+  version: number;
 
-  definition: object;
+  forkId?: string;
+
+  forkVersion?: number;
 
   createdAt: Date;
 
@@ -34,13 +37,14 @@ export default class Widget {
 
   constructor(input: CreateWidgetInput) {
     this.id = input.id;
-    this.slug = input.slug;
-    this.cid = input.cid;
     this.title = input.title;
-    this.tags = input.tags;
+    this.definition = input.definition;
+    this.tags = input.tags?.filter(Boolean);
     this.authorId = input.authorId;
     this.authorName = input.authorName;
-    this.definition = input.definition;
+    this.version = input.version;
+    this.forkId = input.forkId;
+    this.forkVersion = input.forkVersion;
     this.createdAt = input.createdAt;
     this.updatedAt = input.updatedAt;
   }

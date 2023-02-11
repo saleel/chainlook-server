@@ -1,23 +1,23 @@
 export type WidgetDefinition = {
-  title: string,
-  type: string,
-  data: object,
+  title: string;
+  type: string;
+  data: object;
   author: {
-    id: string,
-    name: string,
-  },
-  tags: string[],
-}
+    id: string;
+    name: string;
+  };
+  tags: string[];
+};
 
 export type DashboardDefinition = {
-  title: string,
+  title: string;
   widgets: {
-    widget: WidgetDefinition,
-    layout: { x: number, y: number, w: number, h: number }
-  }[],
+    widget: WidgetDefinition;
+    layout: { x: number; y: number; w: number; h: number };
+  }[];
   author: {
-    id: string,
-    name: string,
-  },
-  tags: string[],
-}
+    id: string;
+    name: string;
+  };
+  tags: string[];
+};

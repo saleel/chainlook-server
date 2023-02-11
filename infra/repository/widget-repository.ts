@@ -13,13 +13,14 @@ export default class WidgetRepository implements IWidgetRepository {
   mapDbRowToWidget(row: any) {
     return new Widget({
       id: row.id,
-      slug: row.slug,
-      cid: row.cid,
       title: row.title,
       authorId: row.author_id,
       authorName: row.author_name,
       tags: row.tags,
       definition: row.definition,
+      version: Number(row.version),
+      forkId: row.fork_id,
+      forkVersion: row.fork_version,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     });
@@ -32,36 +33,17 @@ export default class WidgetRepository implements IWidgetRepository {
       throw new Error(`Cannot get widget with id ${id}`);
     }
 
-    return this.mapDbRowToWidget(row);
-  }
-
-  async getWidgetBySlug(slug: string) {
-    const row = await this.db('widgets').where({
-      slug,
-    });
-
-    if (row.length !== 1) {
-      throw new Error(`Cannot get widget with slug ${slug}`);
-    }
-
-    return this.mapDbRowToWidget(row);
-  }
-
-  async widgetExists(cid?: string, slug?: string) {
-    const [row] = await this.db('widgets').count('id').where({
-      ...cid && { cid },
-      ...slug && { slug },
-    }).as('count');
-
-    return Number(row.count) > 0;
+    return this.mapDbRowToWidget(row[0]);
   }
 
   async findWidgets(filters: { authorId: string }, sortColumn = 'created_at') {
     const { authorId } = filters;
 
-    const rows = await this.db('widgets').where({
-      ...(authorId && { author_id: authorId }),
-    }).orderBy(sortColumn);
+    const rows = await this.db('widgets')
+      .where({
+        ...(authorId && { author_id: authorId }),
+      })
+      .orderBy(sortColumn);
 
     return rows.map(this.mapDbRowToWidget);
   }
@@ -69,12 +51,14 @@ export default class WidgetRepository implements IWidgetRepository {
   async createWidget(widget: Widget) {
     await this.db('widgets').insert({
       id: widget.id,
-      cid: widget.cid,
       title: widget.title,
+      definition: JSON.stringify(widget.definition),
       tags: widget.tags,
       author_id: widget.authorId,
       author_name: widget.authorName,
-      definition: JSON.stringify(widget.definition),
+      version: widget.version,
+      fork_id: widget.forkId,
+      fork_version: widget.forkVersion,
       created_at: widget.createdAt,
       updated_at: widget.updatedAt,
     });
@@ -84,11 +68,11 @@ export default class WidgetRepository implements IWidgetRepository {
     // All fields cannot be updated
     await this.db('widgets')
       .update({
-        cid: widget.cid,
         title: widget.title,
         tags: widget.tags,
         definition: JSON.stringify(widget.definition),
         updated_at: new Date(),
+        version: widget.version,
       })
       .where({ id: widget.id });
   }

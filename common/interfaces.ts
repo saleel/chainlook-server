@@ -1,4 +1,5 @@
 import Dashboard from '../domain/dashboard';
+import User from '../domain/user';
 import Widget from '../domain/widget';
 
 export type IPFSService = {
@@ -19,13 +20,17 @@ export interface IDashboardRepository {
 }
 
 export interface IWidgetRepository {
-  widgetExists(cid?: string, slug?: string): Promise<boolean>;
   getWidgetById(id: string): Promise<Widget>;
-  getWidgetBySlug(slug: string): Promise<Widget>;
   findWidgets(
     filters: { authorId: string },
     sortColumn: string
   ): Promise<Widget[]>;
   createWidget(widget: Widget): Promise<void>;
   editWidget(widget: Widget): Promise<void>;
+}
+
+export interface IUserRepository {
+  getUserByAddress(address: string): Promise<User | null>;
+  createUser(user: User): Promise<void>;
+  editUser(user: User): Promise<void>;
 }

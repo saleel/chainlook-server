@@ -10,7 +10,7 @@ type CreateDashboardInput = {
   starred: number;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
 export default class Dashboard {
   id: string;

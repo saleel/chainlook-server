@@ -49,20 +49,28 @@ export default class DashboardRepository implements IDashboardRepository {
   }
 
   async dashboardExists(cid?: string, slug?: string) {
-    const [row] = await this.db('dashboards').count('id').where({
-      ...cid && { cid },
-      ...slug && { slug },
-    }).as('count');
+    const [row] = await this.db('dashboards')
+      .count('id')
+      .where({
+        ...(cid && { cid }),
+        ...(slug && { slug }),
+      })
+      .as('count');
 
     return Number(row.count) > 0;
   }
 
-  async findDashboards(filters: { authorId: string }, sortColumn = 'created_at') {
+  async findDashboards(
+    filters: { authorId: string },
+    sortColumn = 'created_at',
+  ) {
     const { authorId } = filters;
 
-    const rows = await this.db('dashboards').where({
-      ...(authorId && { author_id: authorId }),
-    }).orderBy(sortColumn);
+    const rows = await this.db('dashboards')
+      .where({
+        ...(authorId && { author_id: authorId }),
+      })
+      .orderBy(sortColumn);
 
     return rows.map(this.mapDbRowToDashboard);
   }
