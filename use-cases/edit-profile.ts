@@ -3,13 +3,14 @@ import User from '../domain/user';
 
 type UseCaseContext = {
   userRepository: IUserRepository;
+  user: User;
 };
 
 export default async function editProfileUseCase(
-  address: string,
   params: Partial<User>,
   context: UseCaseContext,
 ) {
+  const { address } = context.user;
   const { username } = params;
 
   const user = await context.userRepository.getUserByAddress(address);

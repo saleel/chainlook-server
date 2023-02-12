@@ -96,6 +96,7 @@ const routes = [
 
       const widget = await newWidgetUseCase(input, {
         widgetRepository,
+        user: request.user,
       });
 
       reply.send(widget);
@@ -127,6 +128,7 @@ const routes = [
 
       const widget = await editWidgetUseCase(widgetId, widgetData, {
         widgetRepository,
+        user: request.user,
       });
 
       reply.send(widget);
@@ -152,8 +154,9 @@ const routes = [
     ) => {
       const { username } = request.body as { username: string };
 
-      const user = await editProfileUseCase(request.user.address, { username }, {
+      const user = await editProfileUseCase({ username }, {
         userRepository,
+        user: request.user,
       });
 
       reply.send(user);

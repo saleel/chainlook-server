@@ -1,10 +1,12 @@
 import { v4 as uuid } from 'uuid';
 import { IWidgetRepository } from '../common/interfaces';
 import { WidgetDefinition } from '../common/types';
+import User from '../domain/user';
 import Widget from '../domain/widget';
 
 type UseCaseContext = {
   widgetRepository: IWidgetRepository;
+  user: User;
 };
 
 type NewWidgetInput = {
@@ -27,8 +29,7 @@ export default async function newWidgetUseCase(
   const widget = new Widget({
     id: id || uuid(),
     title,
-    authorId: 'null',
-    authorName: 'null',
+    user: context.user,
     tags,
     definition,
     version: 1,

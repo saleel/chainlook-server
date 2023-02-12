@@ -1,5 +1,6 @@
 import { Knex } from 'knex';
 import { IWidgetRepository } from '../../common/interfaces';
+import User from '../../domain/user';
 import Widget from '../../domain/widget';
 
 export default class WidgetRepository implements IWidgetRepository {
@@ -14,8 +15,11 @@ export default class WidgetRepository implements IWidgetRepository {
     return new Widget({
       id: row.id,
       title: row.title,
-      authorId: row.author_id,
-      authorName: row.author_name,
+      user: new User({
+        id: row.user_id,
+        username: row.username,
+        address: row.address,
+      }),
       tags: row.tags,
       definition: row.definition,
       version: Number(row.version),
@@ -27,7 +31,9 @@ export default class WidgetRepository implements IWidgetRepository {
   }
 
   async getWidgetById(id: string) {
-    const row = await this.db('widgets').where({ id });
+    const row = await this.db('widgets')
+      .join('users', 'widgets.user_id', '=', 'users.id')
+      .where({ 'widgets.id': id });
 
     if (row.length !== 1) {
       throw new Error(`Cannot get widget with id ${id}`);
@@ -36,12 +42,13 @@ export default class WidgetRepository implements IWidgetRepository {
     return this.mapDbRowToWidget(row[0]);
   }
 
-  async findWidgets(filters: { authorId: string }, sortColumn = 'created_at') {
-    const { authorId } = filters;
+  async findWidgets(filters: { userId: string }, sortColumn = 'created_at') {
+    const { userId } = filters;
 
     const rows = await this.db('widgets')
+      .join('users', 'widgets.user_id', '=', 'users.id')
       .where({
-        ...(authorId && { author_id: authorId }),
+        ...(userId && { user_id: userId }),
       })
       .orderBy(sortColumn);
 
@@ -54,8 +61,7 @@ export default class WidgetRepository implements IWidgetRepository {
       title: widget.title,
       definition: JSON.stringify(widget.definition),
       tags: widget.tags,
-      author_id: widget.authorId,
-      author_name: widget.authorName,
+      user_id: widget.user.id,
       version: widget.version,
       fork_id: widget.forkId,
       fork_version: widget.forkVersion,

@@ -12,7 +12,7 @@ export interface IDashboardRepository {
   getDashboardById(id: string): Promise<Dashboard>;
   getDashboardBySlug(slug: string): Promise<Dashboard>;
   findDashboards(
-    filters: { authorId: string },
+    filters: { userId: string },
     sortColumn: string
   ): Promise<Dashboard[]>;
   createDashboard(dashboard: Dashboard): Promise<void>;
@@ -22,7 +22,7 @@ export interface IDashboardRepository {
 export interface IWidgetRepository {
   getWidgetById(id: string): Promise<Widget>;
   findWidgets(
-    filters: { authorId: string },
+    filters: { userId: string },
     sortColumn: string
   ): Promise<Widget[]>;
   createWidget(widget: Widget): Promise<void>;
