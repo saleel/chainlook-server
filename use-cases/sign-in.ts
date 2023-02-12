@@ -31,7 +31,7 @@ export default async function signInUseCase(
     await userRepository.createUser(user);
   }
 
-  const token = JWT.sign({ address }, process.env.JWT_SECRET as string, {
+  const token = JWT.sign({ username: user.username, address }, process.env.JWT_SECRET as string, {
     expiresIn: expirationTime
       ? (new Date(expirationTime).getTime() - new Date().getTime()) / 1000
       : '2 days',

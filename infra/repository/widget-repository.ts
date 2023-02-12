@@ -32,6 +32,7 @@ export default class WidgetRepository implements IWidgetRepository {
 
   async getWidgetById(id: string) {
     const row = await this.db('widgets')
+      .select('widgets.*', 'users.username', 'users.address')
       .join('users', 'widgets.user_id', '=', 'users.id')
       .where({ 'widgets.id': id });
 
@@ -46,6 +47,7 @@ export default class WidgetRepository implements IWidgetRepository {
     const { userId } = filters;
 
     const rows = await this.db('widgets')
+      .select('widgets.*', 'users.username', 'users.address')
       .join('users', 'widgets.user_id', '=', 'users.id')
       .where({
         ...(userId && { user_id: userId }),

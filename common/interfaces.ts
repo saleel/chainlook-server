@@ -8,9 +8,9 @@ export type IPFSService = {
 };
 
 export interface IDashboardRepository {
-  dashboardExists(cid?: string, slug?: string): Promise<boolean>;
+  dashboardExists(userId: string, slug: string): Promise<boolean>;
   getDashboardById(id: string): Promise<Dashboard>;
-  getDashboardBySlug(slug: string): Promise<Dashboard>;
+  getDashboardBySlug(slug: string, username?: string): Promise<Dashboard>;
   findDashboards(
     filters: { userId: string },
     sortColumn: string
@@ -23,7 +23,7 @@ export interface IWidgetRepository {
   getWidgetById(id: string): Promise<Widget>;
   findWidgets(
     filters: { userId: string },
-    sortColumn: string
+    sortColumn?: string
   ): Promise<Widget[]>;
   createWidget(widget: Widget): Promise<void>;
   editWidget(widget: Widget): Promise<void>;

@@ -1,8 +1,8 @@
 import User from './user';
 
-type WidgetDefinition = {
+export type WidgetDefinition = {
   type: string;
-  data: object;
+  data?: object;
   chart?: object;
   table?: object;
   metric?: object;

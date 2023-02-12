@@ -1,9 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { generateNonce, SiweMessage } from 'siwe';
-import { Web3StorageService } from './services/web3storage';
-import publishDashboardUseCase from '../use-cases/publish-dashboard';
-import { DashboardDefinition, WidgetDefinition } from '../common/types';
-import newWidgetUseCase from '../use-cases/new-widget';
+import { generateNonce } from 'siwe';
+// import { Web3StorageService } from './services/web3storage';
+import newWidgetUseCase from '../use-cases/create-widget';
 import widgetSchema from '../schemas/widget.json';
 import dashboardSchema from '../schemas/dashboard.json';
 import DashboardRepository from './repository/dashboard-repository';
@@ -15,9 +13,14 @@ import Widget from '../domain/widget';
 import signInUseCase from '../use-cases/sign-in';
 import UserRepository from './repository/user-repository';
 import editProfileUseCase from '../use-cases/edit-profile';
+import findWidgetsUseCase from '../use-cases/find-widgets';
+import Dashboard from '../domain/dashboard';
+import createDashboardUseCase from '../use-cases/create-dashboard';
+import getDashboardUseCase from '../use-cases/get-dashboard';
+import editDashboardUseCase from '../use-cases/edit-dashboard';
 
 // const web3Storage = new Web3StorageService(process.env.WEB3STORAGE_TOKEN as string);
-// const dashboardRepository = new DashboardRepository(db);
+const dashboardRepository = new DashboardRepository(db);
 const widgetRepository = new WidgetRepository(db);
 const userRepository = new UserRepository(db);
 
@@ -41,7 +44,10 @@ const routes = [
     ) => {
       const { message, signature } = request.body;
       try {
-        const { token, user } = await signInUseCase({ message, signature }, { userRepository });
+        const { token, user } = await signInUseCase(
+          { message, signature },
+          { userRepository },
+        );
         reply.send({
           token,
           user,
@@ -51,6 +57,25 @@ const routes = [
         reply.status(500);
         reply.send();
       }
+    },
+  },
+  {
+    method: 'GET',
+    url: '/widgets',
+    handler: async (
+      request: FastifyRequest<{ Params: { userId: string } }>,
+      reply: FastifyReply,
+    ) => {
+      const { userId } = request.params;
+
+      const widget = await findWidgetsUseCase(
+        { userId },
+        {
+          widgetRepository,
+        },
+      );
+
+      reply.send(widget);
     },
   },
   {
@@ -71,7 +96,7 @@ const routes = [
   },
   {
     method: 'POST',
-    url: '/widget',
+    url: '/widgets',
     schema: {
       body: {
         type: 'object',
@@ -87,12 +112,7 @@ const routes = [
       requireAuth: true,
     },
     handler: async (request: FastifyRequest, reply: FastifyReply) => {
-      const input = request.body as {
-        definition: WidgetDefinition;
-        id: string;
-        title: string;
-        tags: string[];
-      };
+      const input = request.body as Widget; // Similar structure of Widget used in API
 
       const widget = await newWidgetUseCase(input, {
         widgetRepository,
@@ -104,7 +124,7 @@ const routes = [
   },
   {
     method: 'PATCH',
-    url: '/widget/:widgetId',
+    url: '/widgets/:widgetId',
     schema: {
       body: {
         type: 'object',
@@ -123,7 +143,7 @@ const routes = [
       request: FastifyRequest<{ Params: { widgetId: 'string' } }>,
       reply: FastifyReply,
     ) => {
-      const widgetData = request.body as Widget;
+      const widgetData = request.body as Partial<Widget>;
       const { widgetId } = request.params;
 
       const widget = await editWidgetUseCase(widgetId, widgetData, {
@@ -148,18 +168,95 @@ const routes = [
     config: {
       requireAuth: true,
     },
-    handler: async (
-      request: FastifyRequest,
-      reply: FastifyReply,
-    ) => {
+    handler: async (request: FastifyRequest, reply: FastifyReply) => {
       const { username } = request.body as { username: string };
 
-      const user = await editProfileUseCase({ username }, {
-        userRepository,
+      const user = await editProfileUseCase(
+        { username },
+        {
+          userRepository,
+          user: request.user,
+        },
+      );
+
+      reply.send(user);
+    },
+  },
+  {
+    method: 'GET',
+    url: '/dashboards/:id',
+    handler: async (
+      request: FastifyRequest<{ Params: { id: string } }>,
+      reply: FastifyReply,
+    ) => {
+      const dashboardId = request.params.id;
+
+      const dashboard = await getDashboardUseCase(dashboardId, {
+        dashboardRepository,
+      });
+
+      reply.send(dashboard);
+    },
+  },
+  {
+    method: 'POST',
+    url: '/dashboards',
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          title: { type: 'string' },
+          slug: { type: 'string' },
+          definition: dashboardSchema,
+          tags: { type: 'array', items: { type: 'string' } },
+        },
+      },
+    },
+    config: {
+      requireAuth: true,
+    },
+    handler: async (request: FastifyRequest, reply: FastifyReply) => {
+      const input = request.body as Dashboard; // Similar structure of Widget used in API
+
+      const dashboard = await createDashboardUseCase(input, {
+        dashboardRepository,
         user: request.user,
       });
 
-      reply.send(user);
+      reply.send(dashboard);
+    },
+  },
+  {
+    method: 'PATCH',
+    url: '/dashboards/:dashboardId',
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          title: { type: 'string' },
+          definition: dashboardSchema,
+          tags: { type: 'array', items: { type: 'string' } },
+        },
+      },
+    },
+    config: {
+      requireAuth: true,
+    },
+    handler: async (
+      request: FastifyRequest<{ Params: { dashboardId: 'string' } }>,
+      reply: FastifyReply,
+    ) => {
+      const dashboardData = request.body as Partial<Dashboard>;
+      const { dashboardId } = request.params;
+
+      const dashboard = await editDashboardUseCase(dashboardId, dashboardData, {
+        dashboardRepository,
+        user: request.user,
+      });
+
+      reply.send(dashboard);
     },
   },
 ];

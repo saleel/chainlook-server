@@ -10,17 +10,17 @@ import routes from './infra/routes';
 import User from './domain/user';
 import logger from './infra/logger';
 
-const server = fastify({ logger });
+const server = fastify({ logger, ignoreTrailingSlash: true });
 
 server.register(cors, {});
 
 routes.forEach((r) => server.route(r as RouteOptions));
 
 server.addSchema(
-  JSON.parse(fs.readFileSync('./schemas/widget.json').toString()),
+  JSON.parse(fs.readFileSync('./schemas/widget.json').toString())
 );
 server.addSchema(
-  JSON.parse(fs.readFileSync('./schemas/dashboard.json').toString()),
+  JSON.parse(fs.readFileSync('./schemas/dashboard.json').toString())
 );
 
 server.decorateRequest('user', null);

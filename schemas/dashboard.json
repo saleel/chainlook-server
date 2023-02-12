@@ -4,21 +4,31 @@
   "type": "object",
   "properties": {
     "title": { "type": "string" },
-    "author": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" }
-      },
-      "required": ["id", "name"],
-      "additionalProperties": true
-    },
-    "widgets": {
+    "elements": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "widget": { "$ref": "/schemas/widget.json" },
+          "widget": { 
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["definition", "title"],
+            "properties": {
+              "definition": { "$ref": "/schemas/widget.json" },
+              "title": { "type": "string" },
+              "tags": { "type": "array", "items": { "type": "string" } },
+              "id": { "type": "string" },
+              "version": { "type": "number" }
+            }
+          },
+          "text": { 
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "message": { "type": "string" }
+            },
+            "required": ["title", "message"]
+           },
           "layout": {
             "type": "object",
             "properties": {
@@ -30,10 +40,14 @@
             "required": ["x", "y", "w", "h"]
           }
         },
-        "required": ["widget", "layout"]
+        "required": ["layout"],
+        "anyOf": [
+          { "required": ["widget"] },
+          { "required": ["text"] }
+        ]
       },
       "minItems": 1
     }
   },
-  "required": ["author", "title", "widgets"]
+  "required": ["title", "elements"]
 }
