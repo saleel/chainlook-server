@@ -31,10 +31,10 @@ export default async function createDashboardUseCase(
     tags: dashboardInput.tags.map((t) => cleanString(t).trim()).filter((t) => t.length > 0),
     id: uuid(),
     user: context.user,
-    starred: 0,
+    starCount: 0,
     version: 1,
-    createdAt: now,
-    updatedAt: now,
+    createdOn: now,
+    updatedOn: now,
   });
 
   await context.dashboardRepository.createDashboard(dashboard);

@@ -25,8 +25,8 @@ export default class WidgetRepository implements IWidgetRepository {
       version: Number(row.version),
       forkId: row.fork_id,
       forkVersion: row.fork_version,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
+      createdOn: row.created_on,
+      updatedOn: row.updated_on,
     });
   }
 
@@ -43,8 +43,16 @@ export default class WidgetRepository implements IWidgetRepository {
     return this.mapDbRowToWidget(row[0]);
   }
 
-  async findWidgets(filters: { userId: string }, sortColumn = 'created_at') {
+  async findWidgets(
+    filters: { userId: string },
+    limit: number,
+    sortKey?: Partial<keyof Widget>,
+    sortOrder?: 'asc' | 'desc',
+  ) {
     const { userId } = filters;
+
+    let sortColumn = 'created_on';
+    if (sortKey === 'createdOn') sortColumn = 'created_on';
 
     const rows = await this.db('widgets')
       .select('widgets.*', 'users.username', 'users.address')
@@ -52,7 +60,12 @@ export default class WidgetRepository implements IWidgetRepository {
       .where({
         ...(userId && { user_id: userId }),
       })
-      .orderBy(sortColumn);
+      .orderBy(sortColumn, sortOrder || 'desc')
+      .modify((qb) => {
+        if (limit) {
+          qb.limit(limit);
+        }
+      });
 
     return rows.map(this.mapDbRowToWidget);
   }
@@ -67,8 +80,8 @@ export default class WidgetRepository implements IWidgetRepository {
       version: widget.version,
       fork_id: widget.forkId,
       fork_version: widget.forkVersion,
-      created_at: widget.createdAt,
-      updated_at: widget.updatedAt,
+      created_on: widget.createdOn,
+      updated_on: widget.updatedOn,
     });
   }
 
@@ -79,7 +92,7 @@ export default class WidgetRepository implements IWidgetRepository {
         title: widget.title,
         tags: widget.tags,
         definition: JSON.stringify(widget.definition),
-        updated_at: new Date(),
+        updated_on: new Date(),
         version: widget.version,
       })
       .where({ id: widget.id });

@@ -1,13 +1,20 @@
 import { IWidgetRepository } from '../common/interfaces';
+import Widget from '../domain/widget';
 
 type UseCaseContext = {
   widgetRepository: IWidgetRepository;
 };
 
 export default async function findWidgetsUseCase(
-  filters: { userId: string },
+  params: { userId: string, limit?: number, sort?: Partial<keyof Widget>, sortOrder?: 'asc' | 'desc' },
   context: UseCaseContext,
 ) {
-  const widgets = await context.widgetRepository.findWidgets({ userId: filters.userId });
-  return widgets;
+  const dashboards = await context.widgetRepository.findWidgets(
+    { userId: params.userId },
+    params.limit || 10,
+    params.sort || 'createdOn',
+    params.sortOrder || 'desc',
+  );
+
+  return dashboards;
 }

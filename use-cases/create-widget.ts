@@ -25,8 +25,8 @@ export default async function newWidgetUseCase(
     tags,
     definition,
     version: 1,
-    createdAt: now,
-    updatedAt: now,
+    createdOn: now,
+    updatedOn: now,
   });
 
   await context.widgetRepository.createWidget(widget);

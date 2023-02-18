@@ -40,7 +40,7 @@ export default async function editWidgetUseCase(
   }
 
   if (isUpdated) {
-    widget.updatedAt = new Date();
+    widget.updatedOn = new Date();
     widget.version += 1;
     await context.widgetRepository.editWidget(widget);
   }

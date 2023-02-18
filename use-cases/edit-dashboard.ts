@@ -45,7 +45,7 @@ export default async function editDashboardUseCase(
   }
 
   if (isUpdated) {
-    dashboard.updatedAt = new Date();
+    dashboard.updatedOn = new Date();
     dashboard.version += 1;
     await context.dashboardRepository.editDashboard(dashboard);
   }

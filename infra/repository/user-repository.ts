@@ -15,8 +15,8 @@ export default class UserRepository implements IUserRepository {
       id: row.id,
       address: row.address,
       username: row.username,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
+      createdOn: row.created_on,
+      updatedOn: row.updated_on,
     });
   }
 
@@ -35,8 +35,8 @@ export default class UserRepository implements IUserRepository {
       id: user.id,
       address: user.address,
       username: user.username,
-      created_at: user.createdAt,
-      updated_at: user.updatedAt,
+      created_on: user.createdOn,
+      updated_on: user.updatedOn,
     });
   }
 
@@ -45,7 +45,7 @@ export default class UserRepository implements IUserRepository {
     await this.db('users')
       .update({
         username: user.username,
-        updated_at: new Date(),
+        updated_on: new Date(),
       })
       .where({ id: user.id });
   }

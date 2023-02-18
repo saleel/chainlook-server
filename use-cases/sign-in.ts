@@ -24,8 +24,8 @@ export default async function signInUseCase(
     user = new User({
       id: address,
       address,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdOn: new Date(),
+      updatedOn: new Date(),
     });
 
     await userRepository.createUser(user);

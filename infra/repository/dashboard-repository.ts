@@ -24,10 +24,11 @@ export default class DashboardRepository implements IDashboardRepository {
       }),
       tags: row.tags,
       definition: row.definition,
-      starred: row.starred,
+      starCount: row.star_count,
       version: row.version,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
+      isPrivate: row.is_private,
+      createdOn: row.created_on,
+      updatedOn: row.updated_on,
     });
   }
 
@@ -64,16 +65,26 @@ export default class DashboardRepository implements IDashboardRepository {
     const [row] = await this.db('dashboards')
       .count('id')
       .where({
-        ...(userId && { user_id: userId }),
-        ...(slug && { slug }),
+        user_id: userId,
+        slug,
       })
       .as('count');
 
     return Number(row.count) > 0;
   }
 
-  async findDashboards(filters: { userId: string }, sortColumn = 'created_at') {
+  async findDashboards(
+    filters: { userId?: string; starredBy?: string },
+    limit: number,
+    sortKey?: Partial<keyof Dashboard>,
+    sortOrder?: 'asc' | 'desc'
+  ) {
     const { userId } = filters;
+
+    let sortColumn = 'created_on';
+    if (sortKey === 'createdOn') sortColumn = 'created_on';
+    if (sortKey === 'updatedOn') sortColumn = 'updated_on';
+    if (sortKey === 'starCount') sortColumn = 'star_count';
 
     const rows = await this.db('dashboards')
       .select('dashboards.*', 'users.username', 'users.address')
@@ -81,7 +92,17 @@ export default class DashboardRepository implements IDashboardRepository {
       .where({
         ...(userId && { user_id: userId }),
       })
-      .orderBy(sortColumn);
+      .orderBy(sortColumn, sortOrder || 'desc')
+      .modify((qb) => {
+        if (limit) {
+          qb.limit(limit);
+        }
+        if (filters.starredBy) {
+          qb.join('stars', 'dashboards.id', '=', 'stars.dashboard_id').where({
+            'stars.user_id': filters.starredBy,
+          });
+        }
+      });
 
     return rows.map(this.mapDbRowToDashboard);
   }
@@ -96,8 +117,9 @@ export default class DashboardRepository implements IDashboardRepository {
       user_id: dashboard.user.id,
       version: dashboard.version,
       definition: JSON.stringify(dashboard.definition),
-      created_at: dashboard.createdAt,
-      updated_at: dashboard.updatedAt,
+      is_private: dashboard.isPrivate,
+      created_on: dashboard.createdOn,
+      updated_on: dashboard.updatedOn,
     });
   }
 
@@ -109,11 +131,45 @@ export default class DashboardRepository implements IDashboardRepository {
         title: dashboard.title,
         slug: dashboard.slug,
         tags: dashboard.tags,
-        starred: dashboard.starred,
+        star_count: dashboard.starCount,
         version: dashboard.version,
         definition: JSON.stringify(dashboard.definition),
-        updated_at: new Date(),
+        is_private: dashboard.isPrivate,
+        updated_on: dashboard.updatedOn,
       })
       .where({ id: dashboard.id });
+  }
+
+  async starDashboard(dashboard: Dashboard, user: User): Promise<void> {
+    await this.db.transaction(async (trx) => {
+      await trx('dashboards')
+        .update({
+          star_count: dashboard.starCount,
+        })
+        .where({ id: dashboard.id });
+
+      await trx('stars').insert({
+        dashboard_id: dashboard.id,
+        user_id: user.id,
+        created_on: new Date(),
+      });
+    });
+  }
+
+  async unstarDashboard(dashboard: Dashboard, user: User): Promise<void> {
+    await this.db.transaction(async (trx) => {
+      await trx('dashboards')
+        .update({
+          star_count: dashboard.starCount,
+        })
+        .where({ id: dashboard.id });
+
+      await trx('stars')
+        .where({
+          dashboard_id: dashboard.id,
+          user_id: user.id,
+        })
+        .delete();
+    });
   }
 }

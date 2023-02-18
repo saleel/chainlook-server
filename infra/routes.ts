@@ -18,6 +18,8 @@ import Dashboard from '../domain/dashboard';
 import createDashboardUseCase from '../use-cases/create-dashboard';
 import getDashboardUseCase from '../use-cases/get-dashboard';
 import editDashboardUseCase from '../use-cases/edit-dashboard';
+import findDashboardsUseCase from '../use-cases/find-dashboards';
+import starDashboardUseCase from '../use-cases/star-dashboard';
 
 // const web3Storage = new Web3StorageService(process.env.WEB3STORAGE_TOKEN as string);
 const dashboardRepository = new DashboardRepository(db);
@@ -63,13 +65,17 @@ const routes = [
     method: 'GET',
     url: '/widgets',
     handler: async (
-      request: FastifyRequest<{ Params: { userId: string } }>,
+      request: FastifyRequest<{ Querystring: { userId: string, sort: Partial<keyof Widget>, order: 'asc' | 'desc', limit: number } }>,
       reply: FastifyReply,
     ) => {
-      const { userId } = request.params;
+      const {
+        userId, sort, order, limit,
+      } = request.query;
 
       const widget = await findWidgetsUseCase(
-        { userId },
+        {
+          userId, sort, sortOrder: order, limit,
+        },
         {
           widgetRepository,
         },
@@ -184,6 +190,29 @@ const routes = [
   },
   {
     method: 'GET',
+    url: '/dashboards',
+    handler: async (
+      request: FastifyRequest<{ Querystring: { userId: string, sort: Partial<keyof Dashboard>, order: 'asc' | 'desc', limit: number, starredBy: string } }>,
+      reply: FastifyReply,
+    ) => {
+      const {
+        userId, limit, sort, order, starredBy,
+      } = request.query;
+
+      const dashboards = await findDashboardsUseCase(
+        {
+          userId, limit, sort, sortOrder: order, starredBy,
+        },
+        {
+          dashboardRepository,
+        },
+      );
+
+      return reply.send(dashboards);
+    },
+  },
+  {
+    method: 'GET',
     url: '/dashboards/:id',
     handler: async (
       request: FastifyRequest<{ Params: { id: string } }>,
@@ -257,6 +286,32 @@ const routes = [
       });
 
       reply.send(dashboard);
+    },
+  },
+  {
+    method: 'POST',
+    url: '/star',
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          dashboardId: { type: 'string' },
+          isStarred: { type: 'boolean' },
+        },
+      },
+    },
+    config: {
+      requireAuth: true,
+    },
+    handler: async (request: FastifyRequest, reply: FastifyReply) => {
+      const { dashboardId, isStarred } = request.body as { dashboardId: string, isStarred: boolean };
+
+      const updated = await starDashboardUseCase({ dashboardId, isStarred }, {
+        dashboardRepository,
+        user: request.user,
+      });
+
+      reply.send(updated);
     },
   },
 ];
