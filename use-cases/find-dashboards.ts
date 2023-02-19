@@ -15,10 +15,7 @@ type UseCaseContext = {
   dashboardRepository: IDashboardRepository;
 };
 
-export default async function findDashboardsUseCase(
-  params: Params,
-  context: UseCaseContext,
-) {
+export default async function findDashboardsUseCase(params: Params, context: UseCaseContext) {
   const dashboards = await context.dashboardRepository.findDashboards(
     {
       userId: params.userId,

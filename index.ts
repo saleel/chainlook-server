@@ -16,12 +16,8 @@ server.register(cors, {});
 
 routes.forEach((r) => server.route(r as RouteOptions));
 
-server.addSchema(
-  JSON.parse(fs.readFileSync('./schemas/widget.json').toString())
-);
-server.addSchema(
-  JSON.parse(fs.readFileSync('./schemas/dashboard.json').toString())
-);
+server.addSchema(JSON.parse(fs.readFileSync('./schemas/widget.json').toString()));
+server.addSchema(JSON.parse(fs.readFileSync('./schemas/dashboard.json').toString()));
 
 server.decorateRequest('user', null);
 server.addHook('preHandler', async (request, reply) => {

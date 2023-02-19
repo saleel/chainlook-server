@@ -14,10 +14,7 @@ type Params = {
   search?: string;
 };
 
-export default async function findWidgetsUseCase(
-  params: Params,
-  context: UseCaseContext,
-) {
+export default async function findWidgetsUseCase(params: Params, context: UseCaseContext) {
   const dashboards = await context.widgetRepository.findWidgets(
     {
       userId: params.userId,

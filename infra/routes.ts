@@ -46,10 +46,7 @@ const routes = [
     ) => {
       const { message, signature } = request.body;
       try {
-        const { token, user } = await signInUseCase(
-          { message, signature },
-          { userRepository },
-        );
+        const { token, user } = await signInUseCase({ message, signature }, { userRepository });
         reply.send({
           token,
           user,
@@ -65,16 +62,28 @@ const routes = [
     method: 'GET',
     url: '/widgets',
     handler: async (
-      request: FastifyRequest<{ Querystring: { userId: string, userUsername: string, search: string, sort: Partial<keyof Widget>, order: 'asc' | 'desc', limit: number } }>,
+      request: FastifyRequest<{
+        Querystring: {
+          userId: string;
+          userUsername: string;
+          search: string;
+          sort: Partial<keyof Widget>;
+          order: 'asc' | 'desc';
+          limit: number;
+        };
+      }>,
       reply: FastifyReply,
     ) => {
-      const {
-        userId, sort, order, limit, userUsername, search,
-      } = request.query;
+      const { userId, sort, order, limit, userUsername, search } = request.query;
 
       const widget = await findWidgetsUseCase(
         {
-          userId, sort, sortOrder: order, limit, userUsername, search,
+          userId,
+          sort,
+          sortOrder: order,
+          limit,
+          userUsername,
+          search,
         },
         {
           widgetRepository,
@@ -87,10 +96,7 @@ const routes = [
   {
     method: 'GET',
     url: '/widgets/:id',
-    handler: async (
-      request: FastifyRequest<{ Params: { id: string } }>,
-      reply: FastifyReply,
-    ) => {
+    handler: async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       const widgetId = request.params.id;
 
       const widget = await getWidgetUseCase(widgetId, {
@@ -192,16 +198,30 @@ const routes = [
     method: 'GET',
     url: '/dashboards',
     handler: async (
-      request: FastifyRequest<{ Querystring: { userId: string, userUsername: string, search: string, sort: Partial<keyof Dashboard>, order: 'asc' | 'desc', limit: number, starredBy: string } }>,
+      request: FastifyRequest<{
+        Querystring: {
+          userId: string;
+          userUsername: string;
+          search: string;
+          sort: Partial<keyof Dashboard>;
+          order: 'asc' | 'desc';
+          limit: number;
+          starredBy: string;
+        };
+      }>,
       reply: FastifyReply,
     ) => {
-      const {
-        userId, limit, sort, order, starredBy, userUsername, search,
-      } = request.query;
+      const { userId, limit, sort, order, starredBy, userUsername, search } = request.query;
 
       const dashboards = await findDashboardsUseCase(
         {
-          userId, limit, sort, sortOrder: order, starredBy, userUsername, search,
+          userId,
+          limit,
+          sort,
+          sortOrder: order,
+          starredBy,
+          userUsername,
+          search,
         },
         {
           dashboardRepository,
@@ -214,10 +234,7 @@ const routes = [
   {
     method: 'GET',
     url: '/dashboards/:id',
-    handler: async (
-      request: FastifyRequest<{ Params: { id: string } }>,
-      reply: FastifyReply,
-    ) => {
+    handler: async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       const dashboardId = request.params.id;
 
       const dashboard = await getDashboardUseCase(dashboardId, {
@@ -304,12 +321,18 @@ const routes = [
       requireAuth: true,
     },
     handler: async (request: FastifyRequest, reply: FastifyReply) => {
-      const { dashboardId, isStarred } = request.body as { dashboardId: string, isStarred: boolean };
+      const { dashboardId, isStarred } = request.body as {
+        dashboardId: string;
+        isStarred: boolean;
+      };
 
-      const updated = await starDashboardUseCase({ dashboardId, isStarred }, {
-        dashboardRepository,
-        user: request.user,
-      });
+      const updated = await starDashboardUseCase(
+        { dashboardId, isStarred },
+        {
+          dashboardRepository,
+          user: request.user,
+        },
+      );
 
       reply.send(updated);
     },

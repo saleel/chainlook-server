@@ -4,10 +4,7 @@ type UseCaseContext = {
   dashboardRepository: IDashboardRepository;
 };
 
-export default async function getDashboardUseCase(
-  id: string,
-  context: UseCaseContext,
-) {
+export default async function getDashboardUseCase(id: string, context: UseCaseContext) {
   if (id.includes(':')) {
     // Assume author:slug format
     const [username, slug] = id.split(':');

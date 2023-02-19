@@ -8,7 +8,7 @@ export type WidgetDefinition = {
   metric?: object;
   text?: object;
   pieChart?: object;
-}
+};
 
 type IWidget = {
   id: string;

@@ -1,4 +1,3 @@
-import fastify from 'fastify';
 import User from '../../domain/user';
 
 declare module 'fastify' {
@@ -7,6 +6,6 @@ declare module 'fastify' {
   }
 
   export interface FastifyContextConfig {
-    requireAuth?: boolean
+    requireAuth?: boolean;
   }
 }

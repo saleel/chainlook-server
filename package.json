@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "start": "node .",
-    "lint": "prettier --write . && eslint --fix .",
+    "lint": "eslint --fix . && prettier --write .",
     "build": "tsc",
     "dev": "ts-node-dev index.ts | pino-pretty -c -t"
   },

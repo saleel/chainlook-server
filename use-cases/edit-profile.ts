@@ -6,10 +6,7 @@ type UseCaseContext = {
   user: User;
 };
 
-export default async function editProfileUseCase(
-  params: Partial<User>,
-  context: UseCaseContext,
-) {
+export default async function editProfileUseCase(params: Partial<User>, context: UseCaseContext) {
   const { address } = context.user;
   const { username } = params;
 

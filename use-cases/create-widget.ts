@@ -8,13 +8,8 @@ type UseCaseContext = {
   user: User;
 };
 
-export default async function newWidgetUseCase(
-  params: Widget,
-  context: UseCaseContext,
-) {
-  const {
-    definition, id, title, tags,
-  } = params;
+export default async function newWidgetUseCase(params: Widget, context: UseCaseContext) {
+  const { definition, id, title, tags } = params;
 
   const now = new Date();
 

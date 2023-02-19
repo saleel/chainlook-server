@@ -44,7 +44,7 @@ export default class WidgetRepository implements IWidgetRepository {
   }
 
   async findWidgets(
-    filters: { userId: string, userUsername?: string, search?: string },
+    filters: { userId: string; userUsername?: string; search?: string },
     limit: number,
     sortKey?: Partial<keyof Widget>,
     sortOrder?: 'asc' | 'desc',

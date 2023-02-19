@@ -3,7 +3,7 @@ import User from '../domain/user';
 
 export default async function starDashboardUseCase(
   params: { isStarred: boolean; dashboardId: string },
-  context: { dashboardRepository: IDashboardRepository; user: User }
+  context: { dashboardRepository: IDashboardRepository; user: User },
 ) {
   const { isStarred, dashboardId } = params;
   const { dashboardRepository } = context;

@@ -12,10 +12,10 @@ export interface IDashboardRepository {
   getDashboardById(id: string): Promise<Dashboard>;
   getDashboardBySlug(slug: string, username?: string): Promise<Dashboard>;
   findDashboards(
-    filters: { userId?: string, starredBy?: string, userUsername?: string; search?: string; },
+    filters: { userId?: string; starredBy?: string; userUsername?: string; search?: string },
     limit?: number,
     sortKey?: Partial<keyof Dashboard>,
-    sortOrder?: 'asc' | 'desc'
+    sortOrder?: 'asc' | 'desc',
   ): Promise<Dashboard[]>;
   createDashboard(dashboard: Dashboard): Promise<void>;
   editDashboard(dashboard: Dashboard): Promise<void>;
@@ -26,10 +26,10 @@ export interface IDashboardRepository {
 export interface IWidgetRepository {
   getWidgetById(id: string): Promise<Widget>;
   findWidgets(
-    filters: { userId?: string, userUsername?: string; search?: string; },
+    filters: { userId?: string; userUsername?: string; search?: string },
     limit?: number,
     sortKey?: Partial<keyof Widget>,
-    sortOrder?: 'asc' | 'desc'
+    sortOrder?: 'asc' | 'desc',
   ): Promise<Widget[]>;
   createWidget(widget: Widget): Promise<void>;
   editWidget(widget: Widget): Promise<void>;
