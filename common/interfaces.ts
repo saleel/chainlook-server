@@ -12,7 +12,7 @@ export interface IDashboardRepository {
   getDashboardById(id: string): Promise<Dashboard>;
   getDashboardBySlug(slug: string, username?: string): Promise<Dashboard>;
   findDashboards(
-    filters: { userId?: string, starredBy?: string },
+    filters: { userId?: string, starredBy?: string, userUsername?: string; search?: string; },
     limit?: number,
     sortKey?: Partial<keyof Dashboard>,
     sortOrder?: 'asc' | 'desc'
@@ -26,7 +26,7 @@ export interface IDashboardRepository {
 export interface IWidgetRepository {
   getWidgetById(id: string): Promise<Widget>;
   findWidgets(
-    filters: { userId: string },
+    filters: { userId?: string, userUsername?: string; search?: string; },
     limit?: number,
     sortKey?: Partial<keyof Widget>,
     sortOrder?: 'asc' | 'desc'

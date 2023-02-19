@@ -30,9 +30,9 @@ server.addHook('preHandler', async (request, reply) => {
       const tokenHeader = request.headers.authorization as string;
       const authToken = tokenHeader.slice('Bearer '.length);
       const parsed = JWT.decode(authToken) as JwtPayload;
-      const { address, username } = parsed;
+      const { id, address, username } = parsed;
 
-      const user = new User({ id: address, address, username });
+      const user = new User({ id, address, username });
       request.user = user;
     } catch (err) {
       request.log.error(err, 'Error parsing auth token');

@@ -7,6 +7,8 @@ type Params = {
   sort?: Partial<keyof Dashboard>;
   sortOrder?: 'asc' | 'desc';
   starredBy?: string;
+  userUsername?: string;
+  search?: string;
 };
 
 type UseCaseContext = {
@@ -18,7 +20,12 @@ export default async function findDashboardsUseCase(
   context: UseCaseContext,
 ) {
   const dashboards = await context.dashboardRepository.findDashboards(
-    { userId: params.userId, starredBy: params.starredBy },
+    {
+      userId: params.userId,
+      starredBy: params.starredBy,
+      userUsername: params.userUsername,
+      search: params.search,
+    },
     params.limit,
     params.sort || 'createdOn',
     params.sortOrder || 'desc',

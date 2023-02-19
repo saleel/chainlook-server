@@ -5,12 +5,25 @@ type UseCaseContext = {
   widgetRepository: IWidgetRepository;
 };
 
+type Params = {
+  userId: string;
+  limit?: number;
+  sort?: Partial<keyof Widget>;
+  sortOrder?: 'asc' | 'desc';
+  userUsername?: string;
+  search?: string;
+};
+
 export default async function findWidgetsUseCase(
-  params: { userId: string, limit?: number, sort?: Partial<keyof Widget>, sortOrder?: 'asc' | 'desc' },
+  params: Params,
   context: UseCaseContext,
 ) {
   const dashboards = await context.widgetRepository.findWidgets(
-    { userId: params.userId },
+    {
+      userId: params.userId,
+      userUsername: params.userUsername,
+      search: params.search,
+    },
     params.limit || 10,
     params.sort || 'createdOn',
     params.sortOrder || 'desc',

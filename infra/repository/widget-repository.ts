@@ -44,12 +44,12 @@ export default class WidgetRepository implements IWidgetRepository {
   }
 
   async findWidgets(
-    filters: { userId: string },
+    filters: { userId: string, userUsername?: string, search?: string },
     limit: number,
     sortKey?: Partial<keyof Widget>,
     sortOrder?: 'asc' | 'desc',
   ) {
-    const { userId } = filters;
+    const { userId, userUsername, search } = filters;
 
     let sortColumn = 'created_on';
     if (sortKey === 'createdOn') sortColumn = 'created_on';
@@ -59,9 +59,20 @@ export default class WidgetRepository implements IWidgetRepository {
       .join('users', 'widgets.user_id', '=', 'users.id')
       .where({
         ...(userId && { user_id: userId }),
+        ...(userUsername && { 'users.username': userUsername }),
       })
       .orderBy(sortColumn, sortOrder || 'desc')
       .modify((qb) => {
+        if (search) {
+          // Replace space with slash
+          const searchTerms = search.replace(/ /g, ' | ');
+          qb.andWhereRaw(
+            // eslint-disable-next-line quotes
+            `to_tsvector(array_to_string(tags, ' ', ' ') || ' ' || title) @@ to_tsquery('english', ?)`,
+            [searchTerms],
+          );
+        }
+
         if (limit) {
           qb.limit(limit);
         }

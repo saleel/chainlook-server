@@ -65,16 +65,16 @@ const routes = [
     method: 'GET',
     url: '/widgets',
     handler: async (
-      request: FastifyRequest<{ Querystring: { userId: string, sort: Partial<keyof Widget>, order: 'asc' | 'desc', limit: number } }>,
+      request: FastifyRequest<{ Querystring: { userId: string, userUsername: string, search: string, sort: Partial<keyof Widget>, order: 'asc' | 'desc', limit: number } }>,
       reply: FastifyReply,
     ) => {
       const {
-        userId, sort, order, limit,
+        userId, sort, order, limit, userUsername, search,
       } = request.query;
 
       const widget = await findWidgetsUseCase(
         {
-          userId, sort, sortOrder: order, limit,
+          userId, sort, sortOrder: order, limit, userUsername, search,
         },
         {
           widgetRepository,
@@ -192,16 +192,16 @@ const routes = [
     method: 'GET',
     url: '/dashboards',
     handler: async (
-      request: FastifyRequest<{ Querystring: { userId: string, sort: Partial<keyof Dashboard>, order: 'asc' | 'desc', limit: number, starredBy: string } }>,
+      request: FastifyRequest<{ Querystring: { userId: string, userUsername: string, search: string, sort: Partial<keyof Dashboard>, order: 'asc' | 'desc', limit: number, starredBy: string } }>,
       reply: FastifyReply,
     ) => {
       const {
-        userId, limit, sort, order, starredBy,
+        userId, limit, sort, order, starredBy, userUsername, search,
       } = request.query;
 
       const dashboards = await findDashboardsUseCase(
         {
-          userId, limit, sort, sortOrder: order, starredBy,
+          userId, limit, sort, sortOrder: order, starredBy, userUsername, search,
         },
         {
           dashboardRepository,

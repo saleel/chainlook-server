@@ -1,5 +1,6 @@
 import { SiweMessage } from 'siwe';
 import JWT from 'jsonwebtoken';
+import { v4 } from 'uuid';
 import { IUserRepository } from '../common/interfaces';
 import User from '../domain/user';
 
@@ -22,7 +23,7 @@ export default async function signInUseCase(
 
   if (!user) {
     user = new User({
-      id: address,
+      id: v4(),
       address,
       createdOn: new Date(),
       updatedOn: new Date(),
@@ -31,11 +32,15 @@ export default async function signInUseCase(
     await userRepository.createUser(user);
   }
 
-  const token = JWT.sign({ username: user.username, address }, process.env.JWT_SECRET as string, {
-    expiresIn: expirationTime
-      ? (new Date(expirationTime).getTime() - new Date().getTime()) / 1000
-      : '2 days',
-  });
+  const token = JWT.sign(
+    { id: user.id, username: user.username, address },
+    process.env.JWT_SECRET as string,
+    {
+      expiresIn: expirationTime
+        ? (new Date(expirationTime).getTime() - new Date().getTime()) / 1000
+        : '2 days',
+    },
+  );
 
   return { token, user };
 }
