@@ -41,7 +41,7 @@ server.addHook('preHandler', async (request, reply) => {
 // Run the server!
 const start = async () => {
   try {
-    await server.listen({ port: Number(process.env.PORT) || 9000 });
+    await server.listen({ port: Number(process.env.PORT) || 9000, host: '0.0.0.0' });
   } catch (err) {
     server.log.error(err);
     process.exit(1);
