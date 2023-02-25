@@ -15,3 +15,6 @@ RUN npm run build
 
 # Expose port
 EXPOSE 9000
+
+# Run app
+CMD [ "npm", "start" ]
