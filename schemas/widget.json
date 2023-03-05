@@ -7,49 +7,12 @@
       "type": "string",
       "enum": ["table", "chart", "pieChart", "metric", "text"]
     },
-    "data": {
-      "type": "object",
-      "properties": {
-        "source": { "$ref": "#/$defs/dataSource" },
-        "sources": {
-          "type": "object",
-          "patternProperties": {
-            "^[a-zA-Z0-9_-]+$": { "$ref": "#/$defs/dataSource" }
-          },
-          "minProperties": 1
-        },
-        "join": { "type": "object" },
-        "transforms": { "type": "object" },
-        "group": {
-          "type": "object",
-          "properties": {
-            "key": { "type": "string" },
-            "aggregations": { "type": "object" }
-          },
-          "required": ["key"],
-          "additionalProperties": false
-        },
-        "dynamicFields": {
-          "type": "object",
-          "patternProperties": {
-            "^[a-zA-Z0-9_-]+$": {
-              "type": "object",
-              "properties": {
-                "operation": { "type": "string" },
-                "fields": { "type": "array", "items": { "type": "string" } }
-              }
-            }
-          }
-        }
-      },
-      "anyOf": [{ "required": ["source"] }, { "required": ["sources"] }],
-      "additionalProperties": false
-    },
-    "table": { "$ref": "#/$defs/widget-table" },
-    "chart": { "$ref": "#/$defs/widget-chart" },
-    "pieChart": { "$ref": "#/$defs/widget-pieChart" },
-    "metric": { "$ref": "#/$defs/widget-metric" },
-    "text": { "$ref": "#/$defs/widget-text" }
+    "data": { "$ref": "#/$defs/data" },
+    "table": { "$ref": "#/$defs/table" },
+    "chart": { "$ref": "#/$defs/chart" },
+    "pieChart": { "$ref": "#/$defs/pieChart" },
+    "metric": { "$ref": "#/$defs/metric" },
+    "text": { "$ref": "#/$defs/text" }
   },
   "required": ["type"],
   "not": { "required": ["table", "chart", "pieChart", "metric", "text"] },
@@ -77,6 +40,62 @@
   ],
   "additionalProperties": false,
   "$defs": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "source": { "$ref": "#/$defs/dataSource" },
+        "sources": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9_-]+$": { "$ref": "#/$defs/dataSource" }
+          },
+          "minProperties": 1
+        },
+        "join": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/field" },
+          "patternProperties": {
+            "": { "$ref": "#/$defs/field" }
+          }
+        },
+        "transforms": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/field" },
+          "patternProperties": {
+            "": { "$ref": "#/$defs/transformer" }
+          }
+        },
+        "group": {
+          "type": "object",
+          "properties": {
+            "key": { "$ref": "#/$defs/field" },
+            "aggregations": {
+              "type": "object",
+              "propertyNames": { "$ref": "#/$defs/field" },
+              "patternProperties": {
+                "": { "$ref": "#/$defs/aggregation" }
+              }
+            }
+          },
+          "required": ["key"],
+          "additionalProperties": false
+        },
+        "dynamicFields": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9_-]+$": {
+              "type": "object",
+              "properties": {
+                "operation": { "$ref": "#/$defs/dynamicFieldOperation" },
+                "fields": { "type": "array", "items": { "$ref": "#/$defs/field" } }
+              }
+            }
+          }
+        }
+      },
+      "anyOf": [{ "required": ["source"] }, { "required": ["sources"] }],
+      "additionalProperties": false
+    },
     "dataSource": {
       "type": "object",
       "properties": {
@@ -87,7 +106,7 @@
         },
         "subgraphId": { "type": "string" },
         "entity": { "type": "string" },
-        "orderDirection": { "type": "string" },
+        "orderDirection": { "type": "string", "enum": ["asc", "desc"] },
         "orderBy": { "type": "string" },
         "skip": { "type": "integer" },
         "first": { "type": "integer" },
@@ -119,7 +138,7 @@
         }
       ]
     },
-    "widget-table": {
+    "table": {
       "type": "object",
       "properties": {
         "columns": {
@@ -127,9 +146,9 @@
           "items": {
             "type": "object",
             "properties": {
-              "dataKey": { "type": "string" },
+              "dataKey": { "$ref": "#/$defs/field" },
               "label": { "type": "string" },
-              "format": { "type": "string" }
+              "format": { "$ref": "#/$defs/formatter" }
             },
             "required": ["dataKey"]
           },
@@ -138,31 +157,31 @@
       },
       "required": ["columns"]
     },
-    "widget-chart": {
+    "chart": {
       "type": "object",
       "properties": {
         "xAxis": {
           "type": "object",
           "properties": {
-            "dataKey": { "type": "string" },
-            "format": { "type": "string" },
+            "dataKey": { "$ref": "#/$defs/field" },
+            "format": { "$ref": "#/$defs/formatter" },
             "reversed": { "type": "boolean" }
           },
           "required": ["dataKey"]
         },
         "yAxis": {
           "type": "object",
-          "properties": { "format": { "type": "string" } }
+          "properties": { "format": { "$ref": "#/$defs/formatter" } }
         },
         "lines": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "dataKey": { "type": "string" },
+              "dataKey": { "$ref": "#/$defs/field" },
               "label": { "type": "string" }
             },
-            "required": ["dataKey", "label"]
+            "required": ["dataKey"]
           },
           "minItems": 1
         },
@@ -171,10 +190,10 @@
           "items": {
             "type": "object",
             "properties": {
-              "dataKey": { "type": "string" },
+              "dataKey": { "$ref": "#/$defs/field" },
               "label": { "type": "string" }
             },
-            "required": ["dataKey", "label"]
+            "required": ["dataKey"]
           },
           "minItems": 1
         },
@@ -183,10 +202,10 @@
           "items": {
             "type": "object",
             "properties": {
-              "dataKey": { "type": "string" },
+              "dataKey": { "$ref": "#/$defs/field" },
               "label": { "type": "string" }
             },
-            "required": ["dataKey", "label"]
+            "required": ["dataKey"]
           },
           "minItems": 1
         }
@@ -194,27 +213,41 @@
       "required": ["xAxis"],
       "anyOf": [{ "required": ["areas"] }, { "required": ["bars"] }, { "required": ["lines"] }]
     },
-    "widget-pieChart": {
+    "pieChart": {
       "type": "object",
       "properties": {
-        "dataKey": { "type": "string" },
-        "nameKey": { "type": "string" },
-        "format": { "type": "string" }
+        "dataKey": { "$ref": "#/$defs/field" },
+        "nameKey": { "$ref": "#/$defs/field" },
+        "format": { "$ref": "#/$defs/formatter" }
       },
       "required": ["dataKey", "nameKey"]
     },
-    "widget-metric": {
+    "metric": {
       "type": "object",
       "properties": {
-        "dataKey": { "type": "string" },
-        "format": { "type": "string" }
+        "dataKey": { "$ref": "#/$defs/field" },
+        "format": { "$ref": "#/$defs/formatter" },
+        "unit": { "type": "string" }
       },
       "required": ["dataKey"]
     },
-    "widget-text": {
+    "text": {
       "type": "object",
-      "properties": { "message": { "type": "string" } },
+      "properties": { "message": { "$ref": "#/$defs/field" } },
       "required": ["message"]
-    }
+    },
+    "field": {
+      "type": "string"
+    },
+    "formatter": {
+      "type": "string"
+    },
+    "transformer": {
+      "type": "string"
+    },
+    "aggregation": {
+      "type": "string"
+    },
+    "dynamicFieldOperation": { "type": "string" }
   }
 }
