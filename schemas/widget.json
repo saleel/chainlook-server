@@ -105,7 +105,7 @@
           "default": "graph"
         },
         "subgraphId": { "type": "string" },
-        "entity": { "type": "string" },
+        "query": { "type": "string" },
         "orderDirection": { "type": "string", "enum": ["asc", "desc"] },
         "orderBy": { "type": "string" },
         "skip": { "type": "integer" },
@@ -117,14 +117,14 @@
       },
       "required": ["provider"],
       "not": {
-        "required": ["subgraphId", "entity", "cid", "network", "tableName"]
+        "required": ["subgraphId", "query", "cid", "network", "tableName"]
       },
       "allOf": [
         {
           "if": {
             "properties": { "provider": { "const": "graph" } }
           },
-          "then": { "required": ["subgraphId", "entity"] }
+          "then": { "required": ["subgraphId", "query"] }
         },
         {
           "if": { "properties": { "provider": { "const": "ipfs" } } },
