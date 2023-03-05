@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { generateNonce } from 'siwe';
+import fs from 'fs';
 // import { Web3StorageService } from './services/web3storage';
 import newWidgetUseCase from '../use-cases/create-widget';
 import widgetSchema from '../schemas/widget.json';
@@ -335,6 +336,26 @@ const routes = [
       );
 
       reply.send(updated);
+    },
+  },
+  {
+    method: 'GET',
+    url: '/schemas/:schemaName',
+    handler: async (
+      request: FastifyRequest<{ Params: { schemaName: string } }>,
+      reply: FastifyReply,
+    ) => {
+      const { schemaName } = request.params;
+
+      if (schemaName !== 'widget.json' && schemaName !== 'dashboard.json') {
+        reply.code(404).send();
+        return;
+      }
+
+      const schema = await fs.readFileSync(`schemas/${schemaName}`, 'utf8');
+
+      reply.header('Content-Type', 'application/json');
+      reply.send(schema);
     },
   },
 ];
